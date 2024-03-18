@@ -8,39 +8,17 @@ async function run_wasm() {
     document.getElementById("file_picker").addEventListener(
         "change",
         function () {
-            let file = this.files[0];
-            myWorker.postMessage({ file: file});
-            myWorker.onmessage = function (e) {
-                generateTableFromData(e.data)
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const uint8Array = new Uint8Array(event.target.result);
+                myWorker.postMessage({ fileBytes: uint8Array});
+                myWorker.onmessage = function (e) {
+                    console.log(e.data)
+                };               
             };
+            reader.readAsArrayBuffer(this.files[0]);
         },
         false
     );
 }
-
-function generateTableFromData(events) {
-
-    const tbl = document.createElement("table");
-    const tblBody = document.createElement("tbody");
-    tbl.appendChild(tblBody);
-    document.body.appendChild(tbl);
-    tbl.setAttribute("border", "2");
-
-    var table = document.createElement("TABLE");  //makes a table element for the page
-    var wantedColumns = ["steamid", "item_name", "skin_name", "custom_name", "item_id", "rarity", "quality", "paint_seed", "paint_wear"]
-
-    for (var i = 0; i < events.length; i++) {
-        var row = table.insertRow(i);
-        for (const [index, element] of wantedColumns.entries()) {
-            row.insertCell(index).innerHTML = events[i][element];
-        }
-    }
-    var header = table.createTHead();
-    var headerRow = header.insertRow(0);
-    for (var i = 0; i < wantedColumns.length; i++) {
-        headerRow.insertCell(i).innerHTML = wantedColumns[i];
-    }
-    document.body.append(table);
-}
-
 run_wasm();
