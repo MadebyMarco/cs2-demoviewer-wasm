@@ -1,6 +1,6 @@
 importScripts('./pkg/demoparser2.js');
 
-const { parseEvent} = wasm_bindgen;
+const { parseEvents} = wasm_bindgen;
 
 // We compiled with `--target no-modules`, which does not create a module. The generated bindings
 // can be loaded in web workers in all modern browsers.
@@ -14,9 +14,9 @@ async function run_in_worker() {
 run_in_worker();
 
 onmessage = async function (e) {
-    let result = parseEvent(
+    let result = parseEvents(
         e.data.fileBytes,
-        "player_death"
+        ["player_death"]
     );
     postMessage(result);
 };
