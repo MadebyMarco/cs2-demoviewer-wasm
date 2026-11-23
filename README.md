@@ -1,1 +1,1 @@
-https://laihoe.github.io/demoparser-wasm-demo/
+https://madebymarco.github.io/cs2-demoviewer-wasm/
