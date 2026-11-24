@@ -9,7 +9,7 @@ html {
 
 body {
   display: grid;
-  grid-template-columns: min-content min-content min-content;
+  grid-template-columns: 1fr min-content 1fr;
   grid-template-rows: min-content min-content;
   justify-content: center;
   align-items: center;
@@ -45,6 +45,24 @@ th {
   padding: 5px;
 }
 
+.playerHUD {
+  display: grid;
+  grid-template-rows: 1fr 20%;
+  grid-template-columns: 1fr;
+}
+
+.health-background {
+  background: #000000;
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.health-bar {
+  background: crimson;
+  grid-column: 1;
+  grid-row: 2;
+}
+
 canvas#canvas {
   /* height: 400px;
       width: 300px; */
@@ -66,4 +84,3 @@ canvas#grenadeCanvas {
   grid-column: 2/3;
 }
 
-/* MAKE A SECOND CANVAS LAYER FOR UTILITY, THEN MAKE IT HAVE Z-INDEX 2 */

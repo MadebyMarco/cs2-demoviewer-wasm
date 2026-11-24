@@ -72,75 +72,86 @@ function updatePlayerInfoAtTick(demoData, tickStart = 0) {
     }
   }
 }
-
-function renderCanvas() {
-  document.getElementById("wrapper").remove();
-  const HUDcolors = {
+const HUDcolors = {
     "main": "#000000",
     "background": "#808080",
-    "accent": "#ffffff"
+    "accent": "#ffffff",
+    "health": "#c20000"
   }
+function renderCanvas() {
+  document.getElementById("wrapper").remove();
+  
   document.body.innerHTML = `
-<svg id="ctSideInfo" height="500" width="320">
-  <text class="medium" x="0" y="35">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="40"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="50" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="50" x="10" />
+
+<div id="ctSideInfo" height="500" width="320">
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
+
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
+
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
 
 
-  <text class="medium" x="0" y="95">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="100"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="110" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="110" x="10" />
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
 
-  <text class="medium" x="0" y="155">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="160"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="170" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="170" x="10" />
-
-  <text class="medium" x="0" y="215">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="220"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="230" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="230" x="10" />
-
-  <text class="medium" x="0" y="275">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="280"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="290" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="290" x="10" />
- 
-</svg>
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
+</div>
   
   
   <canvas id="canvas"></canvas>
   <canvas id="grenadeCanvas"></canvas>
 
-<svg id="tSideInfo" height="500" width="320">
-  <text class="medium" x="0" y="35">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="40"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="50" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="50" x="10" />
+<div id="tSideInfo" height="500" width="320">
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
+
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
+
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
 
 
-  <text class="medium" x="0" y="95">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="100"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="110" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="110" x="10" />
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
 
-  <text class="medium" x="0" y="155">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="160"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="170" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="170" x="10" />
-
-  <text class="medium" x="0" y="215">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="220"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="230" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="230" x="10" />
-
-  <text class="medium" x="0" y="275">Player Name</text>
-  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="280"/>
-  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="290" x="10" />
-  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="290" x="10" />
-</svg>
+  <div class = "playerHUD">
+    <P class="medium name"> Player Name</P>  
+    <div class="health-background"></div>
+    <div class="health-bar"></div>
+  </div>
+</div>
 
   <div class="buttons">
     <button id="play">Play</button>
@@ -157,8 +168,8 @@ function renderCanvas() {
 
 function updatePlayerHUDS(players) {
   
-  const ctHUDS = document.getElementById("ctSideInfo").querySelectorAll("text");
-  const tHUDS = document.getElementById("tSideInfo").querySelectorAll("text");
+  const ctHUDS = document.getElementById("ctSideInfo").querySelectorAll(".name");
+  const tHUDS = document.getElementById("tSideInfo").querySelectorAll(".name");
   let ctCounter = 0;
   let tCounter = 0;
   for (const player in players) {
