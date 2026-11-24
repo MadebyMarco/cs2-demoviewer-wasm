@@ -1,6 +1,13 @@
 let demoData;
 let grenadeData;
 const playerInfo = {};
+
+const tSideNum = 3;
+const ctSideNum = 2;
+
+
+//
+
 async function run_wasm() {
   // Load the Wasm file by awaiting the Promise returned by `wasm_bindgen`
   // `wasm_bindgen` was imported in `index.html`
@@ -18,15 +25,14 @@ async function run_wasm() {
         myWorker.onmessage = function (e) {
           demoData = e.data[0];
           grenadeData = e.data[1];
-          headerData = e.data[2];
-          eventData = e.data[3];
           console.log(demoData);
-          assignPlayers(demoData);
+          console.log(grenadeData);
           console.log(playerInfo);
+          assignPlayers(demoData);
           updatePlayerInfoAtTick(demoData);
           // Need to get header info so I can show rounds, and calc scale based on map
-          console.log(playerInfo);
           renderCanvas();
+          updatePlayerHUDS(playerInfo);
           document.getElementById("play").addEventListener("click", play);
           document.getElementById("pause").addEventListener("click", pause);
         };
@@ -37,7 +43,7 @@ async function run_wasm() {
   );
 }
 run_wasm();
-
+// assign color at tick render based off player team num but not when assigning once like this
 function assignPlayers(demoData) {
   for (let i = 0; i < 10; i++) {
     const pendingTeamNum = demoData.get("team_num")[i];
@@ -52,7 +58,7 @@ function assignPlayers(demoData) {
     playerInfo[demoData.get("name")[i]] = {
       rgbColor: rgbColor,
       rgbStrokeColor: rgbStrokeColor,
-      deadColor,
+      deadColor: deadColor,
     };
   }
 }
@@ -60,18 +66,8 @@ function assignPlayers(demoData) {
 function updatePlayerInfoAtTick(demoData, tickStart = 0) {
   for (let i = tickStart * 10; i < tickStart * 10 + 10; i++) {
     const name = demoData.get("name")[i];
-    // const X = demoData.get("X")[i];
-    // const Y = demoData.get("Y")[i];
-    // const health = demoData.get("health")[i];
-    // const isAlive = demoData.get("is_alive")[i];
-    // playerInfo[name].X = X;
-    // playerInfo[name].Y = Y;
-    // playerInfo[name].health = health;
-    // playerInfo[name].isAlive = isAlive;
-
-    // automates this above process
-    // data is an array with [name of data, dataset itself]
     for (const data of demoData) {
+      //what is data 0 and data 1 doing?
       playerInfo[name][data[0]] = data[1][i];
     }
   }
@@ -79,32 +75,38 @@ function updatePlayerInfoAtTick(demoData, tickStart = 0) {
 
 function renderCanvas() {
   document.getElementById("wrapper").remove();
+  const HUDcolors = {
+    "main": "#000000",
+    "background": "#808080",
+    "accent": "#ffffff"
+  }
   document.body.innerHTML = `
 <svg id="ctSideInfo" height="500" width="320">
- <text class="medium" x="0" y="35">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="40"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="50" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="50" x="10" />
- 
- <text class="medium" x="0" y="95">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="100"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="110" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="110" x="10" />
- 
- <text class="medium" x="0" y="155">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="160"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="170" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="170" x="10" />
- 
- <text class="medium" x="0" y="215">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="220"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="230" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="230" x="10" />
- 
- <text class="medium" x="0" y="275">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="280"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="290" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="290" x="10" />
+  <text class="medium" x="0" y="35">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="40"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="50" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="50" x="10" />
+
+
+  <text class="medium" x="0" y="95">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="100"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="110" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="110" x="10" />
+
+  <text class="medium" x="0" y="155">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="160"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="170" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="170" x="10" />
+
+  <text class="medium" x="0" y="215">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="220"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="230" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="230" x="10" />
+
+  <text class="medium" x="0" y="275">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="280"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="290" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="290" x="10" />
  
 </svg>
   
@@ -113,31 +115,31 @@ function renderCanvas() {
   <canvas id="grenadeCanvas"></canvas>
 
 <svg id="tSideInfo" height="500" width="320">
- <text class="medium" x="0" y="35">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="40"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="50" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="50" x="10" />
- 
- <text class="medium" x="0" y="95">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="100"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="110" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="110" x="10" />
- 
- <text class="medium" x="0" y="155">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="160"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="170" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="170" x="10" />
- 
- <text class="medium" x="0" y="215">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="220"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="230" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="230" x="10" />
- 
- <text class="medium" x="0" y="275">Player Name</text>
- <rect width="320" height="30" style="fill:rgb(0,0,0);" y="280"/>
- <rect width="300" height="10" style="fill:rgb(128,128,128);" y="290" x="10" />
- <rect width="210" height="10" style="fill:rgb(255,255,255);" y="290" x="10" />
- 
+  <text class="medium" x="0" y="35">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="40"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="50" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="50" x="10" />
+
+
+  <text class="medium" x="0" y="95">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="100"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="110" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="110" x="10" />
+
+  <text class="medium" x="0" y="155">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="160"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="170" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="170" x="10" />
+
+  <text class="medium" x="0" y="215">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="220"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="230" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="230" x="10" />
+
+  <text class="medium" x="0" y="275">Player Name</text>
+  <rect width="320" height="30" style="fill:${HUDcolors.main};" y="280"/>
+  <rect width="300" height="10" style="fill:${HUDcolors.background};" y="290" x="10" />
+  <rect width="210" height="10" style="fill:${HUDcolors.accent};" y="290" x="10" />
 </svg>
 
   <div class="buttons">
@@ -146,11 +148,32 @@ function renderCanvas() {
 </div>
     `;
   const grenadeCanvas = document.getElementById("grenadeCanvas");
+  const canvas = document.getElementById("canvas");
   canvas.width = 1200;
   canvas.height = 900;
   grenadeCanvas.width = canvas.width;
   grenadeCanvas.height = canvas.height;
 }
+
+function updatePlayerHUDS(players) {
+  
+  const ctHUDS = document.getElementById("ctSideInfo").querySelectorAll("text");
+  const tHUDS = document.getElementById("tSideInfo").querySelectorAll("text");
+  let ctCounter = 0;
+  let tCounter = 0;
+  for (const player in players) {
+    if(players[player].team_num == tSideNum) {
+      tHUDS[tCounter].textContent = player;
+      tCounter++;
+      continue;
+    }
+
+    ctHUDS[ctCounter].textContent = player;
+    ctCounter++;
+  }
+}
+
+
 
 function getScaledCoordinates(player) {
   const negativeMapWidthX = 2300.97;
@@ -195,6 +218,13 @@ function renderPlayerAtPosition(playerInfo = { X: 0, Y: 0 }, name = "") {
   ctx.arc(scaledCoordinates.X, scaledCoordinates.Y, 10, 0, 2 * Math.PI);
   ctx.fill();
   ctx.stroke();
+
+  // ***** Render List *****
+  // firing
+  // jumping
+  // alive / dead
+  // defusing
+  // yaw / direction player is looking
 }
 let grenadeCounter = 0;
 function renderGrenades(grenadeInfo) {
@@ -223,8 +253,6 @@ function play() {
       for (const player in playerInfo) {
         renderPlayerAtPosition(playerInfo[player], player);
       }
-      // tick = tick + 10, this is a problem because the tick is increasing by 10, when its really at tick 1.
-      // the solution is to add 10 to tick at updatePlayerInfoAtTick itself
       tick = tick + 1;
     }, demoTickDelay);
   }
