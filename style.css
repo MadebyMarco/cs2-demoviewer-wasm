@@ -1,9 +1,13 @@
-body {
-  position: absolute;
-  top: 0;
-  left: 0;
+   
+html {
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body {
   display: grid;
   grid-template-columns: min-content min-content min-content;
   grid-template-rows: min-content min-content;
@@ -44,7 +48,7 @@ th {
 canvas#canvas {
   /* height: 400px;
       width: 300px; */
-  background: url("./Ancient_Radar_cropped.jpg");
+  background: url("./resources/Ancient_Radar_cropped.jpg") no-repeat;
   background-position: center;
   background-size: 1200px 900px;
   z-index: 1;
