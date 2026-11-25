@@ -2,11 +2,18 @@ let demoData;
 let grenadeData;
 const playerInfo = {};
 
-const tSideNum = 3;
-const ctSideNum = 2;
+const tSideNum = 2;
+const ctSideNum = 3;
 
-
-//
+const Colors = {
+    tSide: "rgb(255, 164, 0)",
+    tSideOutline: "rgb(217, 140, 0)",
+    ctSide: "rgb(15,0,255)",
+    ctSideOutline: "rgb(9, 0, 155)",
+    dead: "rgb(220,220,220)",
+    firing: "rgb(255, 207, 151)",
+    defusing: "rgb(219, 44, 181)",
+  }
 
 async function run_wasm() {
   // Load the Wasm file by awaiting the Promise returned by `wasm_bindgen`
@@ -27,8 +34,9 @@ async function run_wasm() {
           grenadeData = e.data[1];
           console.log(demoData);
           console.log(grenadeData);
+          console.log(e);
           console.log(playerInfo);
-          assignPlayers(demoData);
+          initializePlayerInfo(demoData);
           updatePlayerInfoAtTick(demoData);
           // Need to get header info so I can show rounds, and calc scale based on map
           renderCanvas();
@@ -44,22 +52,9 @@ async function run_wasm() {
 }
 run_wasm();
 // assign color at tick render based off player team num but not when assigning once like this
-function assignPlayers(demoData) {
+function initializePlayerInfo(demoData) {
   for (let i = 0; i < 10; i++) {
-    const pendingTeamNum = demoData.get("team_num")[i];
-    let rgbColor = `rgb(15,0,255)`;
-    let rgbStrokeColor = `rgb(9, 0, 155)`;
-    if (pendingTeamNum == 2) {
-      rgbColor = `rgb(255, 164, 0)`;
-      rgbStrokeColor = `rgb(217, 140, 0)`;
-    }
-    const deadColor = `rgb(220,220,220)`;
-
-    playerInfo[demoData.get("name")[i]] = {
-      rgbColor: rgbColor,
-      rgbStrokeColor: rgbStrokeColor,
-      deadColor: deadColor,
-    };
+    playerInfo[demoData.get("name")[i]] = {};
   }
 }
 
@@ -72,12 +67,7 @@ function updatePlayerInfoAtTick(demoData, tickStart = 0) {
     }
   }
 }
-const HUDcolors = {
-    "main": "#000000",
-    "background": "#808080",
-    "accent": "#ffffff",
-    "health": "#c20000"
-  }
+
 function renderCanvas() {
   document.getElementById("wrapper").remove();
   
@@ -157,6 +147,8 @@ function renderCanvas() {
     <button id="play">Play</button>
     <button id="pause">Pause</button>
 </div>
+
+<div class ="play-slider"></div>
     `;
   const grenadeCanvas = document.getElementById("grenadeCanvas");
   const canvas = document.getElementById("canvas");
@@ -185,7 +177,7 @@ function updatePlayerHUDS(players) {
 }
 
 
-
+// x, y, map obj, canvas x, canvas y
 function getScaledCoordinates(player) {
   const negativeMapWidthX = 2300.97;
   const negativeMapHeightY = 2531.07;
@@ -209,24 +201,38 @@ function getScaledCoordinates(player) {
 
 // potentially go through x and Y and scale each coordinate
 
-function renderPlayerAtPosition(playerInfo = { X: 0, Y: 0 }, name = "") {
+function renderPlayerAtPosition(player = { X: 0, Y: 0 }) {
   const canvas = document.querySelector("#canvas");
   const ctx = canvas.getContext("2d");
-  const scaledCoordinates = getScaledCoordinates(playerInfo);
+  const scaledCoordinates = getScaledCoordinates(player);
+  const diameter = 10;
   ctx.beginPath();
   ctx.font = "10px helvetica";
-  ctx.fillStyle = playerInfo.rgbColor;
-  ctx.strokeStyle = playerInfo.rgbStrokeColor;
-  if (!playerInfo.is_alive) {
-    ctx.fillStyle = playerInfo.deadColor;
-    ctx.strokeStyle = playerInfo.deadColor;
+
+  ctx.fillStyle = Colors.ctSide;
+  ctx.strokeStyle = Colors.ctSideOutline;
+
+  if (player.team_num == tSideNum) {
+    ctx.fillStyle = Colors.tSide;
+    ctx.strokeStyle = Colors.tSideOutline;
   }
+
+  if (!player.is_alive) {
+    ctx.fillStyle = Colors.dead;
+  }
+
+  if(player.is_defusing == true) ctx.fillStyle = Colors.defusing;
+
   ctx.fillText(
-    name,
-    scaledCoordinates.X - name.length * 2,
+    player.name,
+    scaledCoordinates.X - player.name.length * 2,
     scaledCoordinates.Y - 15
   );
-  ctx.arc(scaledCoordinates.X, scaledCoordinates.Y, 10, 0, 2 * Math.PI);
+  ctx.arc(scaledCoordinates.X, scaledCoordinates.Y, diameter, 0, 2 * Math.PI);
+  // // Calculating coordinates on circle perimeter using yaw to show where people are looking 
+  // const theta = player.yaw * Math.PI / 180;
+  // scaledCoordinates.yawX = scaledCoordinates.X + diameter/2 * Math.cosine(player.yaw)
+  // ctx.arc()
   ctx.fill();
   ctx.stroke();
 
