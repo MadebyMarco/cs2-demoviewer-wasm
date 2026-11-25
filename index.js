@@ -1,7 +1,10 @@
 let demoData;
 let grenadeData;
-const playerInfo = {};
+let tick = 0;
+let intervalID;
+let demoTickDelay = 1000 / 60;
 
+const playerInfo = {};
 const tSideNum = 2;
 const ctSideNum = 3;
 
@@ -14,43 +17,58 @@ const Colors = {
     firing: "rgb(255, 207, 151)",
     defusing: "rgb(219, 44, 181)",
   }
-
+ 
 async function run_wasm() {
   // Load the Wasm file by awaiting the Promise returned by `wasm_bindgen`
   // `wasm_bindgen` was imported in `index.html`
   await wasm_bindgen("./pkg/demoparser2_bg.wasm");
   // Create a worker in JS. The worker also uses Rust functions
   var myWorker = new Worker("./worker.js");
+  // Instantly Load Demo of 2D demo
+  const demo = await fetch("./resources/complexity-vs-boss-ancient.dem");
+  const arrayBuffer = await demo.arrayBuffer();
+  const uint8Array = new Uint8Array(arrayBuffer);
+  myWorker.postMessage({ fileBytes: uint8Array });
+  myWorker.onmessage = (file) => {
+    initalizeDemoViewer(file);
+  }
 
-  document.getElementById("file_picker").addEventListener(
-    "change",
-    function () {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        const uint8Array = new Uint8Array(event.target.result);
-        myWorker.postMessage({ fileBytes: uint8Array });
-        myWorker.onmessage = function (e) {
-          demoData = e.data[0];
-          grenadeData = e.data[1];
-          console.log(demoData);
-          console.log(grenadeData);
-          console.log(e);
-          console.log(playerInfo);
-          initializePlayerInfo(demoData);
-          updatePlayerInfoAtTick(demoData);
-          // Need to get header info so I can show rounds, and calc scale based on map
-          renderCanvas();
-          updatePlayerHUDS(playerInfo);
-          document.getElementById("play").addEventListener("click", play);
-          document.getElementById("pause").addEventListener("click", pause);
-        };
-      };
-      reader.readAsArrayBuffer(this.files[0]);
-    },
-    false
-  );
+// For picking files of your own
+//   document.getElementById("file_picker").addEventListener(
+//     "change",
+//     function () {
+//       const reader = new FileReader();
+//       reader.onload = function (event) {
+//         const uint8Array = new Uint8Array(event.target.result);
+//         myWorker.postMessage({ fileBytes: uint8Array });
+//         myWorker.onmessage = function (e) {
+//           initalizeDemoViewer(e);
+//         };
+//       };
+//       reader.readAsArrayBuffer(this.files[0]);
+//     },
+//     false
+//   );
 }
 run_wasm();
+
+function initalizeDemoViewer(e) {
+  demoData = e.data[0];
+  grenadeData = e.data[1];
+  console.log(demoData);
+  console.log(grenadeData);
+  console.log(e);
+  console.log(playerInfo);
+  initializePlayerInfo(demoData);
+  updatePlayerInfoAtTick(demoData, tick);
+  // Need to get header info so I can show rounds, and calc scale based on map
+  renderCanvas();
+  updatePlayerHUDS(playerInfo);
+  document.getElementById("play").addEventListener("click", play);
+  document.getElementById("pause").addEventListener("click", pause);
+  document.getElementById("seek-bar").addEventListener("input",seekBar);
+}
+
 // assign color at tick render based off player team num but not when assigning once like this
 function initializePlayerInfo(demoData) {
   for (let i = 0; i < 10; i++) {
@@ -148,7 +166,9 @@ function renderCanvas() {
     <button id="pause">Pause</button>
 </div>
 
-<div class ="play-slider"></div>
+<div class ="play-slider">
+<input id ="seek-bar" type="range" min="0" max=${demoData.get("tick")[demoData.get("tick").length - 1]} value="0">
+</div>
     `;
   const grenadeCanvas = document.getElementById("grenadeCanvas");
   const canvas = document.getElementById("canvas");
@@ -183,8 +203,11 @@ function getScaledCoordinates(player) {
   const negativeMapHeightY = 2531.07;
   const totalMapWidthX = 1395.97 + 2300.97;
   const totalMapHeightY = 4303.04;
-  const scaleX = 1200 / totalMapWidthX;
-  const scaleY = 900 / totalMapHeightY;
+  // const scaleX = 1200 / totalMapWidthX;
+  // const scaleY = 900 / totalMapHeightY;
+  const canvas = document.getElementById("canvas");
+  const scaleX = canvas.width / totalMapWidthX;
+  const scaleY = canvas.height / totalMapHeightY;
   // these should be calculated elsewhere but here for now
   let playerX;
   let playerY;
@@ -194,7 +217,7 @@ function getScaledCoordinates(player) {
   playerY = player.Y + negativeMapHeightY;
 
   playerX = playerX * scaleX;
-  playerY = 900 - playerY * scaleY;
+  playerY = canvas.height - playerY * scaleY;
 
   return { X: playerX, Y: playerY };
 }
@@ -205,7 +228,7 @@ function renderPlayerAtPosition(player = { X: 0, Y: 0 }) {
   const canvas = document.querySelector("#canvas");
   const ctx = canvas.getContext("2d");
   const scaledCoordinates = getScaledCoordinates(player);
-  const diameter = 10;
+  const radius = 10;
   ctx.beginPath();
   ctx.font = "10px helvetica";
 
@@ -228,14 +251,17 @@ function renderPlayerAtPosition(player = { X: 0, Y: 0 }) {
     scaledCoordinates.X - player.name.length * 2,
     scaledCoordinates.Y - 15
   );
-  ctx.arc(scaledCoordinates.X, scaledCoordinates.Y, diameter, 0, 2 * Math.PI);
-  // // Calculating coordinates on circle perimeter using yaw to show where people are looking 
-  // const theta = player.yaw * Math.PI / 180;
-  // scaledCoordinates.yawX = scaledCoordinates.X + diameter/2 * Math.cosine(player.yaw)
-  // ctx.arc()
+  ctx.arc(scaledCoordinates.X, scaledCoordinates.Y, radius, 0, 2 * Math.PI);
   ctx.fill();
   ctx.stroke();
-
+  // Calculating coordinates on circle perimeter using yaw to show where people are looking 
+  const theta = (player.yaw * -1) * Math.PI / 180;
+  scaledCoordinates.aimingX = scaledCoordinates.X + radius * Math.cos(theta);
+  scaledCoordinates.aimingY = scaledCoordinates.Y + radius * Math.sin(theta);
+  ctx.beginPath();
+  ctx.arc(scaledCoordinates.aimingX, scaledCoordinates.aimingY, radius * 0.30, 0, 2 * Math.PI);
+  ctx.fillStyle = Colors.defusing;
+  ctx.fill();
   // ***** Render List *****
   // firing
   // jumping
@@ -256,9 +282,7 @@ function renderGrenades(grenadeInfo) {
   }
 }
 
-let tick = 0;
-let intervalID;
-let demoTickDelay = 1000 / 60;
+
 function play() {
   const canvas = document.querySelector("canvas");
   const ctx = canvas.getContext("2d");
@@ -277,6 +301,10 @@ function play() {
 function pause() {
   clearInterval(intervalID);
   intervalID = null;
+}
+
+function seekBar() {
+  tick = +document.getElementById("seek-bar").value;
 }
 
 function de_MAP(name, image, negativeX, positiveX, negativeY, positiveY) {
