@@ -233,22 +233,35 @@ function renderCanvas() {
   grenadeCanvas.height = canvas.height;
 }
 
-function updatePlayerHUDS(players) {
-  
-  const ctHUDS = document.getElementById("ctSideInfo").querySelectorAll(".name");
-  const tHUDS = document.getElementById("tSideInfo").querySelectorAll(".name");
+function assignPlayerHUDS(players) {
+  const ctHUDS = document.getElementById("ctSideInfo").querySelectorAll(".playerHUD");
+  const tHUDS = document.getElementById("tSideInfo").querySelectorAll(".playerHUD");
   let ctCounter = 0;
   let tCounter = 0;
   for (const player in players) {
     if(players[player].team_num == tSideNum) {
-      tHUDS[tCounter].textContent = player;
+      tHUDS[tCounter].id = player;
+      tHUDS[tCounter].firstElementChild.textContent = player;
+      players[player].HUD = tHUDS[tCounter];
       tCounter++;
       continue;
     }
-
-    ctHUDS[ctCounter].textContent = player;
+    ctHUDS[ctCounter].id = player;
+    ctHUDS[ctCounter].firstElementChild.textContent = player;
+    players[player].HUD = ctHUDS[ctCounter];
     ctCounter++;
   }
+}
+
+
+function updatePlayerHUDS(player) {
+  const [,,healthBar,ArmorBar, weapon, ammo, grenades, balance] = player.HUD.children; //update players info
+  healthBar.style.width = `${player.health}%`;
+  ArmorBar.style.width = `${player.armor_value}%`;
+  // grenades.textContent = `${player.inventory.toString()}`
+  // weapon.textContent = player.active_weapon_name;
+  // ammo.textContent = `${player.active_weapon_ammo} / ${player.total_ammo_left}`;
+  balance.textContent = `${player.balance}`;
 }
 
 
