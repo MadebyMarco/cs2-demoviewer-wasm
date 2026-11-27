@@ -17,7 +17,7 @@ run_in_worker();
 
 onmessage = async function (e) {
   let result = parseTicks(
-    e.data.fileBytes,
+    e.data.fileBytes, //file
     [
       "X",
       "Y",
@@ -26,19 +26,47 @@ onmessage = async function (e) {
       "team_num",
       "is_alive",
       "yaw",
-      "is_player_fire_event_primary",
-      "fire_seq_start_time",
-      "next_primary_attack_tick",
+      "m_bPlayerFireEventIsPrimary",
+      "is_defusing",
+      "WEAPON",
+      "weapon_name",
+      "inventory",
+      "has_helmet",
+      "has_defuser",
       "active_weapon_name",
       "active_weapon_ammo",
       "total_ammo_left",
       "game_time",
-    ],
-    undefined,
-    undefined,
-    true
+      "armor_value",
+      "flash_duration",
+
+    ], //wanted props
+    undefined, //wanted ticks
+    undefined, //wanted players
+    true // structure of array output, this outputs a map wi
   );
 
-  let resultGrenades = parseGrenades(e.data.fileBytes);
-  postMessage([result, resultGrenades]);
+  let resultEvent = parseEvents(e.data.fileBytes,
+     ["flashbang_detonate",
+      "hegrenade_detonate",
+      "smokegrenade_detonate",
+      "smokegrenade_expired",
+      "inferno_startburn",
+      "inferno_expire",
+      "weapon_fire",
+      "player_death",
+      "bomb_planted",
+      "bomb_exploded",
+      "bomb_dropped",
+      "bomb_pickup",
+      "round_freeze_end",
+      "round_announce_match_start",
+      "round_officially_ended",
+      ]);
+
+  
+
+  let resultGrenades = parseGrenades(e.data.fileBytes, ["X", "Y","entityid", "ENTITYID"], false);
+  let resultHeader = parseHeader(e.data.fileBytes);
+  postMessage([result, resultGrenades, resultEvent, listGameEvents(e.data.fileBytes), listUpdatedFields(e.data.fileBytes),resultHeader]);
 };
