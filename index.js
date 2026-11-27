@@ -364,7 +364,9 @@ function pause() {
 }
 
 function seekBar() {
+  pause();
   tick = +document.getElementById("seek-bar").value;
+  play();
 }
 
 function de_MAP(name, image, negativeX, positiveX, negativeY, positiveY) {
