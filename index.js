@@ -267,27 +267,16 @@ function updatePlayerHUD(player) {
 
 // x, y, map obj, canvas x, canvas y
 function getScaledCoordinates(player, map = de_MAP()) {
-  const negativeMapWidthX = 2300.97;
-  const negativeMapHeightY = 2531.07;
-  const totalMapWidthX = 1395.97 + 2300.97;
-  const totalMapHeightY = 4303.04;
-  // const scaleX = 1200 / totalMapWidthX;
-  // const scaleY = 900 / totalMapHeightY;
   const canvas = document.getElementById("canvas");
-  // const scaleX = canvas.width / totalMapWidthX;
-  const scaleX = canvas.width / map.totalX;
-  // const scaleY = canvas.height / totalMapHeightY;
-  const scaleY = canvas.height / map.totalY;
-  // these should be calculated elsewhere but here for now
+  const scaleX = canvas.clientWidth / map.totalX;
+  const scaleY = canvas.clientHeight / map.totalY;
   let playerX;
   let playerY;
-
-  // playerX = player.X + negativeMapWidthX;
-  playerX = player.X + map.negativeX;
-  // playerY = player.Y + negativeMapHeightY;
-  playerY = player.Y + map.negativeY;
+  //uses negative of the map as a positive to offset coordinates, since the canvas coordinates start at 0 
+  playerX = player.X + (-1 * map.negativeX);
+  playerY = player.Y + (-1 * map.negativeY);
   playerX = playerX * scaleX;
-  playerY = canvas.height - playerY * scaleY;
+  playerY = canvas.clientHeight - playerY * scaleY;
 
   return { X: playerX, Y: playerY };
 }
@@ -297,7 +286,7 @@ function getScaledCoordinates(player, map = de_MAP()) {
 function renderPlayerAtPosition(player = { X: 0, Y: 0 }) {
   const canvas = document.querySelector("#canvas");
   const ctx = canvas.getContext("2d");
-  const scaledCoordinates = getScaledCoordinates(player);
+  const scaledCoordinates = getScaledCoordinates(player, maps.ancient);
   const radius = 10;
   ctx.beginPath();
   ctx.font = "10px helvetica";
@@ -360,10 +349,10 @@ function play() {
     intervalID = setInterval(() => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       updatePlayerInfoAtTick(demoData, tick);
-      renderGrenades(grenadeData);
+      // renderGrenades(grenadeData);
       for (const player in playerInfo) {
         renderPlayerAtPosition(playerInfo[player]);
-        updatePlayerHUDS(player);
+        updatePlayerHUD(playerInfo[player]);
       }
       tick = tick + 1;
     }, demoTickDelay);
