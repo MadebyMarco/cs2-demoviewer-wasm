@@ -25,30 +25,30 @@ async function run_wasm() {
   // Create a worker in JS. The worker also uses Rust functions
   var myWorker = new Worker("./worker.js");
   // Instantly Load Demo of 2D demo
-  const demo = await fetch("./resources/complexity-vs-boss-ancient.dem");
-  const arrayBuffer = await demo.arrayBuffer();
-  const uint8Array = new Uint8Array(arrayBuffer);
-  myWorker.postMessage({ fileBytes: uint8Array });
-  myWorker.onmessage = (file) => {
-    initalizeDemoViewer(file);
-  }
+  // const demo = await fetch("./resources/complexity-vs-boss-ancient.dem");
+  // const arrayBuffer = await demo.arrayBuffer();
+  // const uint8Array = new Uint8Array(arrayBuffer);
+  // myWorker.postMessage({ fileBytes: uint8Array });
+  // myWorker.onmessage = (file) => {
+  //   initalizeDemoViewer(file);
+  // }
 
 // For picking files of your own
-//   document.getElementById("file_picker").addEventListener(
-//     "change",
-//     function () {
-//       const reader = new FileReader();
-//       reader.onload = function (event) {
-//         const uint8Array = new Uint8Array(event.target.result);
-//         myWorker.postMessage({ fileBytes: uint8Array });
-//         myWorker.onmessage = function (e) {
-//           initalizeDemoViewer(e);
-//         };
-//       };
-//       reader.readAsArrayBuffer(this.files[0]);
-//     },
-//     false
-//   );
+  document.getElementById("file_picker").addEventListener(
+    "change",
+    function () {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const uint8Array = new Uint8Array(event.target.result);
+        myWorker.postMessage({ fileBytes: uint8Array });
+        myWorker.onmessage = function (e) {
+          initalizeDemoViewer(e);
+        };
+      };
+      reader.readAsArrayBuffer(this.files[0]);
+    },
+    false
+  );
 }
 run_wasm();
 
@@ -63,7 +63,7 @@ function initalizeDemoViewer(e) {
   updatePlayerInfoAtTick(demoData, tick);
   // Need to get header info so I can show rounds, and calc scale based on map
   renderCanvas();
-  updatePlayerHUDS(playerInfo);
+  assignPlayerHUDS(playerInfo);
   document.getElementById("play").addEventListener("click", play);
   document.getElementById("pause").addEventListener("click", pause);
   document.getElementById("seek-bar").addEventListener("input",seekBar);
@@ -254,7 +254,7 @@ function assignPlayerHUDS(players) {
 }
 
 
-function updatePlayerHUDS(player) {
+function updatePlayerHUD(player) {
   const [,,healthBar,ArmorBar, weapon, ammo, grenades, balance] = player.HUD.children; //update players info
   healthBar.style.width = `${player.health}%`;
   ArmorBar.style.width = `${player.armor_value}%`;
@@ -266,7 +266,7 @@ function updatePlayerHUDS(player) {
 
 
 // x, y, map obj, canvas x, canvas y
-function getScaledCoordinates(player) {
+function getScaledCoordinates(player, map = de_MAP()) {
   const negativeMapWidthX = 2300.97;
   const negativeMapHeightY = 2531.07;
   const totalMapWidthX = 1395.97 + 2300.97;
@@ -274,16 +274,18 @@ function getScaledCoordinates(player) {
   // const scaleX = 1200 / totalMapWidthX;
   // const scaleY = 900 / totalMapHeightY;
   const canvas = document.getElementById("canvas");
-  const scaleX = canvas.width / totalMapWidthX;
-  const scaleY = canvas.height / totalMapHeightY;
+  // const scaleX = canvas.width / totalMapWidthX;
+  const scaleX = canvas.width / map.totalX;
+  // const scaleY = canvas.height / totalMapHeightY;
+  const scaleY = canvas.height / map.totalY;
   // these should be calculated elsewhere but here for now
   let playerX;
   let playerY;
 
-  playerX = player.X + negativeMapWidthX;
-
-  playerY = player.Y + negativeMapHeightY;
-
+  // playerX = player.X + negativeMapWidthX;
+  playerX = player.X + map.negativeX;
+  // playerY = player.Y + negativeMapHeightY;
+  playerY = player.Y + map.negativeY;
   playerX = playerX * scaleX;
   playerY = canvas.height - playerY * scaleY;
 
@@ -360,7 +362,8 @@ function play() {
       updatePlayerInfoAtTick(demoData, tick);
       renderGrenades(grenadeData);
       for (const player in playerInfo) {
-        renderPlayerAtPosition(playerInfo[player], player);
+        renderPlayerAtPosition(playerInfo[player]);
+        updatePlayerHUDS(player);
       }
       tick = tick + 1;
     }, demoTickDelay);
@@ -394,7 +397,7 @@ function de_MAP(name, image, negativeX, positiveX, negativeY, positiveY) {
 const maps = {
   ancient: de_MAP(
     "ancient",
-    "./Ancient_Radar_cropeed.jpg",
+    "./resources/Ancient_Radar_cropped.jpg",
     -2300.97,
     1396.97,
     -2531.07,
