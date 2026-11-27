@@ -91,23 +91,39 @@ function renderCanvas() {
   
   document.body.innerHTML = `
 
+
 <div id="ctSideInfo" height="500" width="320">
   <div class = "playerHUD">
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 
   <div class = "playerHUD">
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 
   <div class = "playerHUD">
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 
 
@@ -115,36 +131,65 @@ function renderCanvas() {
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 
   <div class = "playerHUD">
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 </div>
   
-  
+  <div class="match-info">
+  <div class="death-announcement"></div>
+  <div class="round-timer"></div>
+  <div class="round-counter"></div>
+</div>
   <canvas id="canvas"></canvas>
   <canvas id="grenadeCanvas"></canvas>
 
 <div id="tSideInfo" height="500" width="320">
-  <div class = "playerHUD">
+   <div class = "playerHUD">
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 
   <div class = "playerHUD">
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 
   <div class = "playerHUD">
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 
 
@@ -152,12 +197,22 @@ function renderCanvas() {
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 
   <div class = "playerHUD">
     <P class="medium name"> Player Name</P>  
     <div class="health-background"></div>
     <div class="health-bar"></div>
+    <div class="armor-bar"></div>
+    <div class="weapon"></div>
+    <div class="ammo"></div>
+    <div class="grenade-belt"></div>
+    <div class="balance"></div>
   </div>
 </div>
 
